@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model usuarios {
+  id                  String    @id @db.VarChar(100)
+  nombre              String?   @db.VarChar(100)
+  email               String    @db.VarChar(200)
+  celular             String?   @db.VarChar(50)
+  rut                 String?   @db.VarChar(100)
+  fecha_de_nacimiento DateTime? @db.Date
+  activo              Boolean   @default(true)
+  password            String?   @db.VarChar(100)
+  complete_register   Boolean   @default(false)
+}
+
+model pagos {
+  id                 String    @id @db.VarChar(100)
+  next_payment_date  DateTime? @db.Date
+  date_created       DateTime? @db.Date
+  suscription_id     String    @db.VarChar(100)
+  transaction_amount Float     @db.Float
+  currency_id        String    @db.VarChar(10)
+
+  @@index([suscription_id], map: "suscripciones")
+}
+
+model suscripciones {
+  id                String    @id @db.VarChar(100)
+  id_user           String    @db.VarChar(100)
+  date_created      DateTime? @db.Date
+  card_id           String?   @db.VarChar(200)
+  payment_method_id String?   @db.VarChar(100)
+  plan_id           String    @db.VarChar(100)
+  end_date          DateTime? @db.Date
+  billing_day       Int?
+  type              String?   @db.VarChar(25)
+
+  @@index([plan_id], map: "planes")
+  @@index([id_user], map: "usuarios")
+}
