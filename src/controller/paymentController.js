@@ -101,7 +101,7 @@ export const createPreference = async (req, res) => {
         pending: "https://www.youtube.com/watch?v=oL3qDpubXU8"
       },
       auto_return: "approved",
-      notification_url: `https://6a9c-181-90-15-216.ngrok-free.app/webhook/${req.body.idUsuario}/${req.body.email}/${req.body.plan}/${req.body.plan}/${req.body.telefono}/${nombre}/${req.body.rut}/${req.body.password}/${req.body.fecha}`
+      notification_url: `https://6a9c-181-90-15-216.ngrok-free.app/webhook/${req.body.idUsuario}/${req.body.email}/${req.body.plan}/${req.body.plan}/${req.body.telefono}/${req.body.nombre}/${req.body.rut}/${req.body.password}/${req.body.fecha}`
     };
 
     const useeer = {
