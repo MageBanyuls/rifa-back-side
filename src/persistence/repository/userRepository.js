@@ -3,13 +3,20 @@ import handlePrismaError from "../../utils/prismaError.js";
 
 class userRepository{
 
-    async createUser(id, email) {
+    async createUser(data) {
         try {
-            console.log('entre al repo');
+            console.log('entre al repo user');
             return prisma.usuarios.create({
                 data: {
-                    id: id,
-                    email: email
+                    id: data.id,
+                    email: data.email,
+                    nombre:data.nombre,
+                    celular: data.celular,
+                    rut: data.rut,
+                    fecha_de_nacimiento: data.fecha_de_nacimiento,
+                    activo:data.activo,
+                    password:data.password,
+                    complete_register: data.complete_register
                 }
             });
         } catch (error) {

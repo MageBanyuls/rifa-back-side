@@ -1,6 +1,8 @@
 import 'dotenv/config'
 import paymentService from '../service/paymentService.js'
 import { io } from '../../index.js'
+import userRepository from '../persistence/repository/userRepository.js'
+import { CustomError } from "../utils/handlerResponse.js";
 
 const URL = process.env.HOST
 const MPTKN = process.env.MERCADOPAGO_TOKEN
@@ -10,6 +12,7 @@ const plan = process.env.PLAN_ID
 import axios from 'axios';
 import { Preference, MercadoPagoConfig } from 'mercadopago';
 import userService from '../service/userService.js'
+import { completeRegister } from './userController.js'
 
 const client = new MercadoPagoConfig({accessToken: MPTKN})
 
@@ -17,7 +20,7 @@ export const createSuscription = async (req, res, next) => {
   try {
     //userEmail = req.body.payer.email;
     console.log('hola ')
-    const { idUsuario, token, email } = req.body;
+    const { idUsuario, token, email, rut, telefono, fecha, password, nombre } = req.body;
     console.log(req.body)
     const data = {
       preapproval_plan_id: plan,
@@ -27,7 +30,28 @@ export const createSuscription = async (req, res, next) => {
       status: "authorized", 
     };
 
-    const usuarionuevo = await userService.signUpUser(idUsuario, email)
+    try{
+      const userExists = await userRepository.findUserByEmail(email)
+      if (userExists){
+        throw new CustomError(409, 'Email ya existente');
+      }
+    }catch(error){
+      return error;
+    }
+
+    const datosUser = {
+
+      id: idUsuario,
+      nombre: nombre,
+      email: email,
+      celular: telefono,
+      rut: rut,
+      fecha_de_nacimiento: fecha,
+      activo: true,
+      password: password,
+      complete_register: true
+
+    }
 
     const generarSuscripcion = async () => {
       console.log('generando suscripcion')
@@ -38,14 +62,16 @@ export const createSuscription = async (req, res, next) => {
           data,
           {
             headers: {
-              Authorization: "Bearer APP_USR-6042457912670930-061210-8ca40ae15924091738f5f364d8383ee6-1853466315",
+              Authorization: `Bearer ${MPTKN}`,
             },
           }
         );
         console.log('suscripcion generada')
         console.log(response)
 
-        await paymentService.payService({id_user:usuarionuevo.id,...response.data});
+        await paymentService.payService({id_user:idUsuario.id,...response.data});
+
+        await userService.signUpUser(datosUser)
         //console.log(response)
         //ResponseHandler.Ok(res, "Ok");
         //console.log("response first endpoint:", response.data);

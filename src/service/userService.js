@@ -20,17 +20,13 @@ class UserService{
         }
     }
 
-    async signUpUser(idUsuario, email){
+    async signUpUser(data){
 
         try {
-            const userExists = await userRepository.userExists(email);
-            if (userExists){
-                throw new CustomError(409, 'Email ya existente');
-            }
-
             
+            const passwordHashed = createHash(data.password)
 
-            const user = await userRepository.createUser(idUsuario,email);
+            const user = await userRepository.createUser({password:passwordHashed,...data});
 
             return user;
 

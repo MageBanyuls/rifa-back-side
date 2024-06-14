@@ -36,3 +36,19 @@ CREATE TABLE pagos(
     PRIMARY KEY (id),
     KEY suscripciones(suscription_id)
 );
+
+CREATE TABLE planes(
+    id VARCHAR(100) NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    precio VARCHAR(100) NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE planes_por_usuario(
+    id VARCHAR(100) NOT NULL,
+    id_user VARCHAR(100) NOT NULL,
+    id_plan VARCHAR(100) NOT NULL,
+    PRIMARY KEY (id),
+    KEY usuarios(id_user),
+    KEY planes(id_plan)
+);
