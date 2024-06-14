@@ -82,6 +82,7 @@ export const createPreference = async (req, res) => {
         pending: "https://www.youtube.com/watch?v=oL3qDpubXU8"
       },
       auto_return: "approved",
+      notification_url: `https://6a9c-181-90-15-216.ngrok-free.app/webhook/${req.body.idUsuario}`
     };
 
     const useeer = {
@@ -89,13 +90,15 @@ export const createPreference = async (req, res) => {
       email: req.body.email
     }
 
-    await userService.signUpUser(useeer.idUsuario,useeer.email);
+    console.log(useeer)
+
+    
 
     const preference = new Preference(client);
 
     const result = await preference.create({body});
    
-    return res.status(200).json(result.init_point)
+    return res.status(200).json({init_point: result.init_point})
 
   }catch(error){
     console.log(error)
@@ -110,6 +113,9 @@ export const receiveWebhook = async(req,res)=>{
   console.log("entre a feedback:");
   const { query } = req;
   const topic = query.topic || query.type;
+
+  const emailwebhook = req.params.id
+  console.log(emailwebhook)
   console.log("topic:", topic);
   if (topic === "payment") {
     const paymentId = query.id || query["data.id"];
@@ -146,6 +152,8 @@ export const receiveWebhook = async(req,res)=>{
     // registerPay(paymentId)
     // console.log(paymentId)
     // console.log(query)
+
+    //await userService.signUpUser(useeer.idUsuario,useeer.email);
   }
   return res.status(200).send("OK")
 };

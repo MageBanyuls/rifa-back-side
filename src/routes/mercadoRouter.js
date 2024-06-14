@@ -9,7 +9,7 @@ router.post('/create-order', createPreference);
 
 router.get('/success', (req, res) => res.send("Success"));
 
-router.post('/webhook', receiveWebhook);
+router.post('/webhook/:id', receiveWebhook);
 
 export default router
 
