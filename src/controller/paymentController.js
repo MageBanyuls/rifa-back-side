@@ -101,7 +101,7 @@ export const createPreference = async (req, res) => {
         pending: "https://www.youtube.com/watch?v=oL3qDpubXU8"
       },
       auto_return: "approved",
-      notification_url: `https://6a9c-181-90-15-216.ngrok-free.app/webhook/${req.body.idUsuario}/${req.body.email}/${req.body.plan}/${req.body.telefono}/${req.body.nombre}/${req.body.rut}/${req.body.password}/${req.body.fecha}`
+      notification_url: `https://d5b3-190-15-204-189.ngrok-free.app/webhook/${req.body.idUsuario}/${req.body.email}/${req.body.plan}/${req.body.telefono}/${req.body.nombre}/${req.body.rut}/${req.body.password}/${req.body.fecha}`
     };
 
 
@@ -122,90 +122,74 @@ export const createPreference = async (req, res) => {
   }
 }
   
-export const receiveWebhook = async(req,res)=>{
-  console.log("entre a feedback:");
-  const { query } = req;
-  const topic = query.topic || query.type;
+export const receiveWebhook = async (req, res) => {
+  try {
+    console.log("entre a feedback:");
+    const { query, params, body } = req;
+    const topic = query.topic || query.type;
 
-  const idUsuario = req.params.id
-  const email = req.params.email
-  const plan = req.params.plan
-  const celular =req.params.telefono
-  const password = req.params.password
-  const nombre = req.params.nombre
-  const rut = req.params.rut
-  const fecha = req.params.fecha
+    // Obtener datos de los parámetros de la ruta
+    const { id, email, plan, telefono, nombre, rut, password, fecha } = params;
 
-  if (topic === "payment") {
+    if (topic === "payment") {
+      const paymentId = query.id || query["data.id"];
+      const data = body;
 
+      if (data.status === "approved") {
+        // Calcular la fecha de finalización
+        const startdate = new Date(data.date_created);
+        startdate.setMonth(startdate.getMonth() + 12);
+        const dia = startdate.getDate();
+        const enddate = startdate.toISOString();
 
-    const paymentId = query.id || query["data.id"];
+        const datitos = {
+          id: data.id, // Esto debe ser definido o removido si no es necesario
+          id_user: id,
+          date_created: data.date_created,
+          card_id: `${data.card.first_six_digits}${data.card.last_four_digits}`,
+          payment_method_id: data.payment_method_id,
+          preapproval_plan_id: plan,
+          auto_recurring: {
+            end_date: enddate,
+            transaction_amount: data.transaction_amount,
+            currency_id: data.currency_id
+          },
+          billing_day: dia,
+          next_payment_date: enddate
+        };
 
-    const data = req.body
+        const datosUser = {
+          id: id,
+          nombre: nombre,
+          email: email,
+          celular: telefono,
+          rut: rut,
+          fecha_de_nacimiento: fecha,
+          activo: true,
+          password: password,
+          complete_register: true,
+          plan: plan
+        };
 
-    if (data.status === "approved") {
+        await paymentService.payService(datitos);
+        await userService.signUpUser(datosUser);
+        io.emit(`pago_suscripcion_${id}`, { status: "APRO" });
+      } else if (data.status === "rejected") {
+        io.emit(`pago_suscripcion_${id}`, { status: "REJ" });
+      } else {
+        io.emit(`pago_suscripcion_${id}`, { status: "ERR" });
+      }
 
-
-    //await paymentService.registerPay(paymentId)
-
-    const startdate =new Date(data.date_created)
-    startdate.setMonth(startdate.getMonth() + 12)
-
-    const dia = startdate.getDate()
-    
-    const enddate = startdate.toISOString()
-    const datitos = {
-      id:result.id,
-      id_user:idUsuario,
-      date_created:data.date_created,
-      card_id: `${data.card.first_six_digits}${data.card.last_four_digits}`,
-      payment_method_id:data.payment_method_id,
-      preapproval_plan_id: plan,
-      auto_recurring:{
-        end_date: enddate,
-        transaction_amount: data.transaction_amount,
-        currency_id: data.currency_id
-      },
-      billing_day: dia,
-      next_payment_date: enddate
-
-
-    };
-
-    const datosUser = {
-
-      id: idUsuario,
-      nombre: nombre,
-      email: email,
-      celular: celular,
-      rut: rut,
-      fecha_de_nacimiento: fecha,
-      activo: true,
-      password: password,
-      complete_register: true,
-      plan: plan
-  
+      return res.status(200).send("OK");
+    } else {
+      return res.status(400).send("Invalid topic");
     }
-    
-    await paymentService.payService(datitos)
-
-    //await paymentService.registerPay(paymentId)
-    //registerPay(paymentId)
-    //console.log(paymentId)
-    //console.log(query)
-
-    await userService.signUpUser(datosUser);
-
-    io.emit(`pago_suscripcion_${idUsuario}`,{status:"APRO"})
-
-  } else if (data.status === "rejected") {
-    io.emit(`pago_suscripcion_${idUsuario}`,{status:"REJ"})
+  } catch (error) {
+    console.error("Error in receiveWebhook:", error);
+    return res.status(500).send("Internal Server Error");
   }
-  io.emit(`pago_suscripcion_${idUsuario}`,{status:"ERR"})
-  return res.status(200).send("OK")
 };
 
-}
 
 
 
