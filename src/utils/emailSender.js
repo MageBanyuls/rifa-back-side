@@ -2,8 +2,7 @@ import "dotenv/config"
 import { createTransport } from "nodemailer";
 import jwt from "jsonwebtoken"
 import "dotenv/config"
-import { getHTMLBienvenidaYPassword } from "./templateEmail/BienvenidaPassword.js";
-import { getHTMLBienvenidaYCodigo } from "./templateEmail/bienvenidaCodigo.js";
+import { getHTMLBienvenidaYCodigo } from "./bienvenidaCodigo.js";
 // la direccion de destino se envia a un email temporal sacado de "https://tempail.com/"
 const transporterGmail = createTransport({
     service: 'gmail',
