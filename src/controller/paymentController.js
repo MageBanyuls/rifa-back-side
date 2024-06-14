@@ -52,6 +52,7 @@ export const createSuscription = async (req, res, next) => {
         io.emit(`pago_suscripcion_${idUsuario}`,{status:"APRO"})
         return res.status(200).send("OK")
       } catch (error) {
+        io.emit(`pago_suscripcion_${idUsuario}`,{status:"REJ"})
         return res.status(400)
       }
     };
