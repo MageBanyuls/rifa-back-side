@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import {createPreference, createSuscription, receiveWebhook } from '../controller/paymentController.js';
-import { sendEmail } from '../utils/emailSender.js';
+import {createPreference, createSuscription, receiveWebhook, sendmail } from '../controller/paymentController.js';
+
 
 const router = Router()
 
@@ -12,7 +12,7 @@ router.get('/success', (req, res) => res.send("Success"));
 
 router.post('/webhook/:id/:email/:plan/:telefono/:nombre/:rut/:password/:fecha', receiveWebhook);
 
-router.post('/email', sendEmail)
+router.post('/email', sendmail)
 
 export default router
 

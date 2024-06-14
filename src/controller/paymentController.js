@@ -3,6 +3,7 @@ import paymentService from '../service/paymentService.js'
 import { io } from '../../index.js'
 import userRepository from '../persistence/repository/userRepository.js'
 import { CustomError } from "../utils/handlerResponse.js";
+import { ResponseHandler } from '../utils/injection.js';
 
 const URL = process.env.HOST
 const MPTKN = process.env.MERCADOPAGO_TOKEN
@@ -205,20 +206,20 @@ async function registerPay (paymentId){
   }
 };
 
-// export const sendmail = async (req, res) => {
-//   try {
-//     const email =req.body.email
-//     const codigo = req.body.codigo
+export const sendmail = async (req, res) => {
+  try {
+    const email =req.body.email
+    const codigo = req.body.codigo
 
-//     const enviomail = await sendEmailBienvenida(email, codigo)
+    const enviomail = await sendEmailBienvenida(email, codigo)
 
-//     return enviomail;
-//   }catch(error){
-//     res.status(500).json({
-//       error: "error al crear el pago :(",
-//       err : error
-//   });
-// }
+    return ResponseHandler.Ok(res, enviomail)
+  }catch(error){
+    res.status(500).json({
+      error: "error al crear el pago :(",
+      err : error
+  });
+}
 
-// }
-// }
+}
+

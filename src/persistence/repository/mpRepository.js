@@ -7,10 +7,11 @@ class mpRepository {
     async registerPay(data) {
       try {
         const id = idgenerate('pagos');
+        const idsus = `suscription-${data.id}`
         //console.log(data)
         const suscripciones = await prisma.suscripciones.create({
           data: {
-          id: data.id,
+          id: idsus,
           id_user: data.id_user,
           date_created: data.date_created,
           card_id: data.card_id,
