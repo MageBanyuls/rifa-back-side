@@ -14,6 +14,7 @@ import { Preference, MercadoPagoConfig } from 'mercadopago';
 import userService from '../service/userService.js'
 import { completeRegister } from './userController.js'
 import { sendEmailBienvenida } from '../utils/emailSender.js';
+import mpRepository from '../persistence/repository/mpRepository.js';
 
 const client = new MercadoPagoConfig({accessToken: MPTKN})
 
@@ -133,9 +134,9 @@ export const receiveWebhook = async (req, res) => {
 
     if (topic === "payment") {
       const paymentId = query.id || query["data.id"];
-      const data = body;
+      const payment = await mpRepository.registerPay(paymentId)
 
-      if (data.status === "approved") {
+      if (payment.status === "approved") {
         // Calcular la fecha de finalización
         const startdate = new Date(data.date_created);
         startdate.setMonth(startdate.getMonth() + 12);
@@ -145,14 +146,14 @@ export const receiveWebhook = async (req, res) => {
         const datitos = {
           id: data.id, // Esto debe ser definido o removido si no es necesario
           id_user: id,
-          date_created: data.date_created,
-          card_id: `${data.card.first_six_digits}${data.card.last_four_digits}`,
-          payment_method_id: data.payment_method_id,
+          date_created: payment.date_created,
+          card_id: `${payment.card.first_six_digits}${payment.card.last_four_digits}`,
+          payment_method_id: payment.payment_method_id,
           preapproval_plan_id: plan,
           auto_recurring: {
             end_date: enddate,
-            transaction_amount: data.transaction_amount,
-            currency_id: data.currency_id
+            transaction_amount: payment.transaction_amount,
+            currency_id: payment.currency_id
           },
           billing_day: dia,
           next_payment_date: enddate
@@ -174,7 +175,7 @@ export const receiveWebhook = async (req, res) => {
         await paymentService.payService(datitos);
         await userService.signUpUser(datosUser);
         io.emit(`pago_suscripcion_${id}`, { status: "APRO" });
-      } else if (data.status === "rejected") {
+      } else if (payment.status === "rejected") {
         io.emit(`pago_suscripcion_${id}`, { status: "REJ" });
       } else {
         io.emit(`pago_suscripcion_${id}`, { status: "ERR" });

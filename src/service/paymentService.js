@@ -15,6 +15,8 @@ class mpService {
         const payment = await new Payment(client).get({ id: paymentId });
 
         console.log(payment)
+
+        return payment
   
         // console.log("RegisterPay - Payment Status:", payment.status);
         // console.log("RegisterPay - Payment Payer:", payment.payer);

@@ -48,12 +48,12 @@ server.listen(PORT);
 console.log(`server on port ${PORT}`);
 
 
-// const paymentId = '80142447861'
-// const client = new MercadoPagoConfig({
-//   accessToken: process.env.MERCADOPAGO_TOKEN,
-// });
-// console.log("paymentid:", paymentId);
-// console.log("inside register pay");
+const paymentId = '80142447861'
+const client = new MercadoPagoConfig({
+  accessToken: process.env.MERCADOPAGO_TOKEN,
+});
+console.log("paymentid:", paymentId);
+console.log("inside register pay");
 
-// const payment = await new Payment(client).get({ id: paymentId });
-// console.log(payment)
+const payment = await new Payment(client).get({ id: paymentId });
+console.log(payment)
