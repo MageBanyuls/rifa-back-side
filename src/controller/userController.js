@@ -56,3 +56,15 @@ export const getUserById = async (req, res, next) => {
     }
 }
 
+export const deleteUser = async (req, res, next) => {
+    const id = req.params.id;
+    try {
+        const result = await userService.deleteUser(id);
+        ResponseHandler.Ok(res, result)
+    } catch (error) {
+        ResponseHandler.HandleError(res, error)
+    }
+}
+
+
+

@@ -4,7 +4,8 @@ import {
     resetPass,
     loginUser,
     getUserById,
-    completeRegister
+    completeRegister,
+    deleteUser
 } from '../../src/controller/userController.js'
 
 const router = Router()
@@ -26,5 +27,7 @@ router.get('/user/:id', getUserById)
 router.put('/reset', resetPass)
 
 router.put('/complete-register', completeRegister)
+
+router.delete('/delete/:id', deleteUser)
 
 export default router

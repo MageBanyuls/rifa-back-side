@@ -83,6 +83,19 @@ class userRepository{
             handlePrismaError(error);
         }
     }
+
+    async deleteUser(id) {
+        try {
+            const response = await prisma.usuarios.delete({  
+                where:{
+                    id : id
+                }
+            })
+            return response !== null;
+        } catch (error) {
+            handlePrismaError(error);
+        }
+    }
 }
 
 export default new userRepository()

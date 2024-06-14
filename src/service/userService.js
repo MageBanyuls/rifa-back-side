@@ -100,10 +100,18 @@ class UserService{
                 throw new CustomError(404, "El usuario no existe", { id: id });
             }
 
-            const usercomplete = await userRepository.completeRegisterUser(data)
+            const usercomplete = await userRepository.completeRegisterUser(data);
 
             return usercomplete;
         } catch (error) {
+            throw error;
+        }
+    }
+
+    async deleteUser(id){
+        try{
+            return userRepository.deleteUser(id);
+        }catch(error){
             throw error;
         }
     }
