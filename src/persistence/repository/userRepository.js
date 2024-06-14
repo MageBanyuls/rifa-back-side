@@ -6,7 +6,8 @@ class userRepository{
     async createUser(data) {
         try {
             console.log('entre al repo user');
-            return prisma.usuarios.create({
+
+            const user = await prisma.usuarios.create({
                 data: {
                     id: data.id,
                     email: data.email,
@@ -18,7 +19,19 @@ class userRepository{
                     password:data.password,
                     complete_register: data.complete_register
                 }
+
+              
             });
+
+            const planuser = await prisma.planes_por_usuario.create({
+                data:{
+                    id: data.idplanuser,
+                    id_user: user.id,
+                    id_plan: data.plan
+                }
+            });
+
+            return user,planuser;
         } catch (error) {
             handlePrismaError(error);
         }
@@ -103,6 +116,8 @@ class userRepository{
             handlePrismaError(error);
         }
     }
+
+    
 }
 
 export default new userRepository()

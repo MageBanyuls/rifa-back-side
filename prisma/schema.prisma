@@ -44,3 +44,18 @@ model suscripciones {
   @@index([plan_id], map: "planes")
   @@index([id_user], map: "usuarios")
 }
+
+model planes {
+  id     String @id @db.VarChar(100)
+  nombre String @db.VarChar(100)
+  precio String @db.VarChar(100)
+}
+
+model planes_por_usuario {
+  id      String @id @db.VarChar(100)
+  id_user String @db.VarChar(100)
+  id_plan String @db.VarChar(100)
+
+  @@index([id_plan], map: "planes")
+  @@index([id_user], map: "usuarios")
+}

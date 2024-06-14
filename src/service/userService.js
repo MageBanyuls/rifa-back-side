@@ -23,10 +23,12 @@ class UserService{
     async signUpUser(data){
 
         try {
+
+            const idplanuser = idgenerate('plan-user-')
             
             const passwordHashed = createHash(data.password)
 
-            const user = await userRepository.createUser({password:passwordHashed,...data});
+            const user = await userRepository.createUser({idplanuser: idplanuser,password:passwordHashed,...data});
 
             return user;
 

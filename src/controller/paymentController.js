@@ -6,13 +6,14 @@ import { CustomError } from "../utils/handlerResponse.js";
 
 const URL = process.env.HOST
 const MPTKN = process.env.MERCADOPAGO_TOKEN
-const plan = process.env.PLAN_ID
+
 
 
 import axios from 'axios';
 import { Preference, MercadoPagoConfig } from 'mercadopago';
 import userService from '../service/userService.js'
 import { completeRegister } from './userController.js'
+import { sendEmailBienvenida } from '../utils/emailSender.js';
 
 const client = new MercadoPagoConfig({accessToken: MPTKN})
 
@@ -20,7 +21,7 @@ export const createSuscription = async (req, res, next) => {
   try {
     //userEmail = req.body.payer.email;
     console.log('hola ')
-    const { idUsuario, token, email, rut, telefono, fecha, password, nombre } = req.body;
+    const { idUsuario, token, email, rut, telefono, fecha, password, nombre, plan} = req.body;
     console.log(req.body)
     const data = {
       preapproval_plan_id: plan,
@@ -49,7 +50,8 @@ export const createSuscription = async (req, res, next) => {
       fecha_de_nacimiento: fecha,
       activo: true,
       password: password,
-      complete_register: true
+      complete_register: true,
+      plan: plan
 
     }
 
@@ -108,7 +110,7 @@ export const createPreference = async (req, res) => {
         pending: "https://www.youtube.com/watch?v=oL3qDpubXU8"
       },
       auto_return: "approved",
-      notification_url: `https://6a9c-181-90-15-216.ngrok-free.app/webhook/${req.body.idUsuario}`
+      notification_url: `https://6a9c-181-90-15-216.ngrok-free.app/webhook/${req.body.idUsuario}/${req.body.email}/${req.body.plan}/${req.body.plan}/${req.body.telefono}/${nombre}/${req.body.rut}/${req.body.password}/${req.body.fecha}`
     };
 
     const useeer = {
@@ -140,46 +142,84 @@ export const receiveWebhook = async(req,res)=>{
   const { query } = req;
   const topic = query.topic || query.type;
 
-  const emailwebhook = req.params.id
+  const idUsuario = req.params.id
+  const email = req.params.email
+  const plan = req.params.plan
+  const celular =req.params.plan
+  const password = req.params.password
+  const nombre = req.params.nombre
+  const rut = req.params.rut
+  const fecha = req.params.fecha
+
+
+  
+
   console.log(emailwebhook)
   console.log("topic:", topic);
   if (topic === "payment") {
+
+
     const paymentId = query.id || query["data.id"];
 
-    await paymentService.registerPay(paymentId)
+    const data = req.body
 
-    // const startdate =new Date(result.date_created)
-    // startdate.setMonth(startdate.getMonth() + 12)
+    if (data.status === "approved") {
 
-    // const dia = startdate.getDate()
+
+    //await paymentService.registerPay(paymentId)
+
+    const startdate =new Date(result.date_created)
+    startdate.setMonth(startdate.getMonth() + 12)
+
+    const dia = startdate.getDate()
     
-    // const enddate = startdate.toISOString()
-    // const datitos = {
-    //   id:result.id,
-    //   id_user: useeer.idUsuario,
-    //   date_created:result.date_created,
-    //   card_id:"sfdfsdfsfsdfds",//result.payment_methods.default_card_id,
-    //   payment_method_id:"dfsfdsfsfsddf", //result.payment_methods.default_payment_method_id,
-    //   preapproval_plan_id: plan,
-    //   auto_recurring:{
-    //     end_date: enddate,
-    //     transaction_amount: body.items[0].unit_price * body.items[0].quantity,
-    //     currency_id: body.items[0].currency_id
-    //   },
-    //   billing_day: dia,
-    //   next_payment_date: enddate
+    const enddate = startdate.toISOString()
+    const datitos = {
+      id:result.id,
+      id_user:idUsuario,
+      date_created:result.date_created,
+      card_id:"sfdfsdfsfsdfds",//result.payment_methods.default_card_id,
+      payment_method_id:"dfsfdsfsfsddf", //result.payment_methods.default_payment_method_id,
+      preapproval_plan_id: plan,
+      auto_recurring:{
+        end_date: enddate,
+        transaction_amount: body.items[0].unit_price * body.items[0].quantity,
+        currency_id: body.items[0].currency_id
+      },
+      billing_day: dia,
+      next_payment_date: enddate
 
 
-    // };
+    };
+
+    const datosUser = {
+
+      id: idUsuario,
+      nombre: nombre,
+      email: email,
+      celular: celular,
+      rut: rut,
+      fecha_de_nacimiento: fecha,
+      activo: true,
+      password: password,
+      complete_register: true,
+      plan: plan
+  
+    }
     
-    // const pagoregister = await paymentService.payService(datitos)
+    await paymentService.payService(datitos)
 
-    // await paymentService.registerPay(paymentId)
-    // registerPay(paymentId)
-    // console.log(paymentId)
-    // console.log(query)
+    //await paymentService.registerPay(paymentId)
+    //registerPay(paymentId)
+    //console.log(paymentId)
+    //console.log(query)
 
-    //await userService.signUpUser(useeer.idUsuario,useeer.email);
+    await userService.signUpUser(datosUser);
+
+    io.emit(`pago_suscripcion_${idUsuario}`,{status:"APRO"})
+
+  } else if (data.status === "rejected") {
+    io.emit(`pago_suscripcion_${idUsuario}`,{status:"REJ"})
   }
   return res.status(200).send("OK")
 };
@@ -197,3 +237,21 @@ async function registerPay (paymentId){
     //aca ya puedo hacer todos los registros correspondientes al pago	
   }
 };
+
+// export const sendmail = async (req, res) => {
+//   try {
+//     const email =req.body.email
+//     const codigo = req.body.codigo
+
+//     const enviomail = await sendEmailBienvenida(email, codigo)
+
+//     return enviomail;
+//   }catch(error){
+//     res.status(500).json({
+//       error: "error al crear el pago :(",
+//       err : error
+//   });
+// }
+
+// }
+// }
