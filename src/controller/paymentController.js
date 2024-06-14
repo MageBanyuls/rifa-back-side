@@ -104,12 +104,6 @@ export const createPreference = async (req, res) => {
       notification_url: `https://6a9c-181-90-15-216.ngrok-free.app/webhook/${req.body.idUsuario}/${req.body.email}/${req.body.plan}/${req.body.telefono}/${req.body.nombre}/${req.body.rut}/${req.body.password}/${req.body.fecha}`
     };
 
-    const useeer = {
-      idUsuario :req.body.idUsuario,
-      email: req.body.email
-    }
-
-    console.log(useeer)
 
     
 
@@ -136,7 +130,7 @@ export const receiveWebhook = async(req,res)=>{
   const idUsuario = req.params.id
   const email = req.params.email
   const plan = req.params.plan
-  const celular =req.params.plan
+  const celular =req.params.telefono
   const password = req.params.password
   const nombre = req.params.nombre
   const rut = req.params.rut
@@ -207,6 +201,7 @@ export const receiveWebhook = async(req,res)=>{
   } else if (data.status === "rejected") {
     io.emit(`pago_suscripcion_${idUsuario}`,{status:"REJ"})
   }
+  io.emit(`pago_suscripcion_${idUsuario}`,{status:"ERR"})
   return res.status(200).send("OK")
 };
 
