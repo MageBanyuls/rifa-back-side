@@ -26,8 +26,8 @@ class UserService{
 
             const idplanuser = idgenerate('plan-user-')
             
-            const passwordHashed = createHash(data.password)
-
+            //const passwordHashed =await createHash(data.password)
+            const passwordHashed = await bcrypt.hashSync(data.password, bcrypt.genSaltSync(10));
             const user = await userRepository.createUser({idplanuser: idplanuser,password:passwordHashed,...data});
 
             return user;

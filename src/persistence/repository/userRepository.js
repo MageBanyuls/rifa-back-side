@@ -31,7 +31,7 @@ class userRepository{
                 }
             });
 
-            return user,planuser;
+            return {user,planuser};
         } catch (error) {
             handlePrismaError(error);
         }
