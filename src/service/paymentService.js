@@ -13,17 +13,19 @@ class mpService {
         console.log("inside register pay");
   
         const payment = await new Payment(client).get({ id: paymentId });
-  
-        console.log("RegisterPay - Payment Status:", payment.status);
-        console.log("RegisterPay - Payment Payer:", payment.payer);
+
         console.log(payment)
-        if (payment.status === "approved") {
-          console.log("RegisterPay - Payment Approved");
-          //console.log(payment)
-          return ('ok')//await mpRepository.registerPay(payment);
-        } else {
-          throw new CustomError("400", "Payment not approved");
-        }
+  
+        // console.log("RegisterPay - Payment Status:", payment.status);
+        // console.log("RegisterPay - Payment Payer:", payment.payer);
+        // console.log(payment)
+        // if (payment.status === "approved") {
+        //   console.log("RegisterPay - Payment Approved");
+        //   //console.log(payment)
+        //   return ('ok')//await mpRepository.registerPay(payment);
+        // } else {
+        //   throw new CustomError("400", "Payment not approved");
+        // }
       } catch (error) {
         console.error("RegisterPay - Error:", error);
         throw new CustomError("500", error.message || "Internal Server Error");

@@ -95,7 +95,7 @@ export const createPreference = async (req, res) => {
 
     const result = await preference.create({body});
    
-    return res.status(200).json(result)
+    return res.status(200).json(result.init_point)
 
   }catch(error){
     console.log(error)
@@ -114,36 +114,38 @@ export const receiveWebhook = async(req,res)=>{
   if (topic === "payment") {
     const paymentId = query.id || query["data.id"];
 
-    const startdate =new Date(result.date_created)
-    startdate.setMonth(startdate.getMonth() + 12)
-
-    const dia = startdate.getDate()
-    
-    const enddate = startdate.toISOString()
-    const datitos = {
-      id:result.id,
-      id_user: useeer.idUsuario,
-      date_created:result.date_created,
-      card_id:"sfdfsdfsfsdfds",//result.payment_methods.default_card_id,
-      payment_method_id:"dfsfdsfsfsddf", //result.payment_methods.default_payment_method_id,
-      preapproval_plan_id: plan,
-      auto_recurring:{
-        end_date: enddate,
-        transaction_amount: body.items[0].unit_price * body.items[0].quantity,
-        currency_id: body.items[0].currency_id
-      },
-      billing_day: dia,
-      next_payment_date: enddate
-
-
-    };
-    
-    const pagoregister = await paymentService.payService(datitos)
-
     await paymentService.registerPay(paymentId)
-    registerPay(paymentId)
-    console.log(paymentId)
-    console.log(query)
+
+    // const startdate =new Date(result.date_created)
+    // startdate.setMonth(startdate.getMonth() + 12)
+
+    // const dia = startdate.getDate()
+    
+    // const enddate = startdate.toISOString()
+    // const datitos = {
+    //   id:result.id,
+    //   id_user: useeer.idUsuario,
+    //   date_created:result.date_created,
+    //   card_id:"sfdfsdfsfsdfds",//result.payment_methods.default_card_id,
+    //   payment_method_id:"dfsfdsfsfsddf", //result.payment_methods.default_payment_method_id,
+    //   preapproval_plan_id: plan,
+    //   auto_recurring:{
+    //     end_date: enddate,
+    //     transaction_amount: body.items[0].unit_price * body.items[0].quantity,
+    //     currency_id: body.items[0].currency_id
+    //   },
+    //   billing_day: dia,
+    //   next_payment_date: enddate
+
+
+    // };
+    
+    // const pagoregister = await paymentService.payService(datitos)
+
+    // await paymentService.registerPay(paymentId)
+    // registerPay(paymentId)
+    // console.log(paymentId)
+    // console.log(query)
   }
   return res.status(200).send("OK")
 };
