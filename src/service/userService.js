@@ -4,6 +4,7 @@ import { createHash, isValidPassword } from "../utils/hashPass.js";
 import { CustomError } from "../utils/handlerResponse.js";
 import jwt from "jsonwebtoken";
 import "dotenv/config"
+import bcrypt from 'bcrypt';
 
 class UserService{
 
