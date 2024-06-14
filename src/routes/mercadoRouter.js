@@ -10,7 +10,7 @@ router.post('/create-order', createPreference);
 
 router.get('/success', (req, res) => res.send("Success"));
 
-router.post('/webhook/:id/:email/:plan', receiveWebhook);
+router.post('/webhook/:id/:email/:plan/:telefono/:nombre/:rut/:password/:fecha', receiveWebhook);
 
 router.post('/email', sendEmail)
 

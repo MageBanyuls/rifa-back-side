@@ -31,15 +31,6 @@ export const createSuscription = async (req, res, next) => {
       status: "authorized", 
     };
 
-    try{
-      const userExists = await userRepository.findUserByEmail(email)
-      if (userExists){
-        throw new CustomError(409, 'Email ya existente');
-      }
-    }catch(error){
-      return error;
-    }
-
     const datosUser = {
 
       id: idUsuario,
@@ -71,7 +62,7 @@ export const createSuscription = async (req, res, next) => {
         console.log('suscripcion generada')
         console.log(response)
 
-        await paymentService.payService({id_user:idUsuario.id,...response.data});
+        await paymentService.payService({id_user:idUsuario,...response.data});
 
         await userService.signUpUser(datosUser)
         //console.log(response)
@@ -151,11 +142,6 @@ export const receiveWebhook = async(req,res)=>{
   const rut = req.params.rut
   const fecha = req.params.fecha
 
-
-  
-
-  console.log(emailwebhook)
-  console.log("topic:", topic);
   if (topic === "payment") {
 
 
@@ -168,7 +154,7 @@ export const receiveWebhook = async(req,res)=>{
 
     //await paymentService.registerPay(paymentId)
 
-    const startdate =new Date(result.date_created)
+    const startdate =new Date(data.date_created)
     startdate.setMonth(startdate.getMonth() + 12)
 
     const dia = startdate.getDate()
@@ -177,14 +163,14 @@ export const receiveWebhook = async(req,res)=>{
     const datitos = {
       id:result.id,
       id_user:idUsuario,
-      date_created:result.date_created,
-      card_id:"sfdfsdfsfsdfds",//result.payment_methods.default_card_id,
-      payment_method_id:"dfsfdsfsfsddf", //result.payment_methods.default_payment_method_id,
+      date_created:data.date_created,
+      card_id: `${data.card.first_six_digits}${data.card.last_four_digits}`,
+      payment_method_id:data.payment_method_id,
       preapproval_plan_id: plan,
       auto_recurring:{
         end_date: enddate,
-        transaction_amount: body.items[0].unit_price * body.items[0].quantity,
-        currency_id: body.items[0].currency_id
+        transaction_amount: data.transaction_amount,
+        currency_id: data.currency_id
       },
       billing_day: dia,
       next_payment_date: enddate
@@ -224,6 +210,7 @@ export const receiveWebhook = async(req,res)=>{
   return res.status(200).send("OK")
 };
 
+}
 
 
 

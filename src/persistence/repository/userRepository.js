@@ -76,7 +76,7 @@ class userRepository{
 
     async findUserByEmail(email) {
         try {
-            const user = await prisma.subusuarios.findFirst({
+            const user = await prisma.usuarios.findFirst({
                 where: {
                     email: email,
                 }
